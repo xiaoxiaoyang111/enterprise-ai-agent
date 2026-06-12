@@ -1,0 +1,61 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  # ========== 1. Spring AI 核心配置区 ==========
+  ai:
+    # 智谱配置 (负责算向量)
+    zhipuai:
+      api-key: your-zhipu-api-key-here
+      chat:
+        enabled: false # 关闭官方聊天
+      embedding:
+        enabled: true
+        options:
+          model: embedding-3
+
+    # DeepSeek 配置 (借用 OpenAI 通道，负责聊天和调用工具)
+    openai:
+      api-key: your-deepseek-api-key-here
+      base-url: https://api.deepseek.com
+      chat:
+        options:
+          model: deepseek-chat
+          temperature: 0.1
+      embedding:
+        enabled: false # 💡 关键所在：在这里关掉 OpenAI 的向量化！
+
+    # Redis 向量数据库配置
+    vectorstore:
+      redis:
+        index-name: enterprise_knowledge_index
+        prefix: "kb:"
+        initialize-schema: true
+
+  # ========== 2. Redis 连接基础设施配置 ==========
+  data:
+    redis:
+      client-type: jedis
+      host: localhost
+      port: 6379
+
+  # ========== 3. Servlet 文件上传限制 ==========
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  # ========== 4. MySQL 数据库连接 ==========
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/agent_db?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: your-database-password
+
+# ========== 5. MyBatis-Plus 配置 ==========
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
